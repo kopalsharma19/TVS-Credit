@@ -1,0 +1,152 @@
+##Case Study -- Logistic Regression
+
+v<-Data_CSPL_Risk_model
+
+##Data Preprocessing: Cleaning the Data
+
+colnames(v)[colSums(is.na(v))>0]   ##To check which of the columns have missing values.
+str(v)
+
+sum(is.na(v))
+
+##Removing the features which are not important.
+
+v$V21<-NULL
+v$V23<-NULL
+v$V24<-NULL
+v$V26<-NULL
+v$V27<-NULL
+
+
+v$V1<-NULL
+
+sum(is.na(v$V2))
+
+##Replacing the missing values with mean
+
+v$V4[is.na(v$V4)]<-round((mean(v$V4, na.rm = TRUE)))
+sum(is.na(v$V4))
+
+v$V5[is.na(v$V5)]<-round((mean(v$V5, na.rm = TRUE)))
+
+v$V6[is.na(v$V6)]<-round((mean(v$V6, na.rm = TRUE)))
+v$V7[is.na(v$V7)]<-round((mean(v$V7, na.rm = TRUE)))
+v$V8[is.na(v$V8)]<-round((mean(v$V8, na.rm = TRUE)))
+v$V9[is.na(v$V9)]<-round((mean(v$V9, na.rm = TRUE)))
+
+##Replacing the missing values with mode
+
+val<-unique(v$V10[!is.na(v$V10)])
+mode<-val[which.max(tabulate(match(v,val)))]
+mode
+
+v$V10[is.na(v$V10)]<-"SC"
+sum(is.na(v$V10))
+
+
+v$V11[is.na(v$V11)]<-round((mean(v$V11, na.rm = TRUE)))
+
+v$V12[is.na(v$V12)]<-(mean(v$V12, na.rm = TRUE))
+
+val<-unique(v$V14[!is.na(v$V14)])
+mode<-val[which.max(tabulate(match(v,val)))]
+mode
+
+v$V14[is.na(v$V14)]<-"HOUSEWIFE"
+sum(is.na(v$V14))
+
+val<-unique(v$V13[!is.na(v$V13)])
+mode<-val[which.max(tabulate(match(v,val)))]
+mode
+
+v$V13[is.na(v$V13)]<-"FEMALE"
+sum(is.na(v$V13))
+
+val<-unique(v$V15[!is.na(v$V15)])
+mode<-val[which.max(tabulate(match(v,val)))]
+mode
+
+v$V15[is.na(v$V15)]<-"OWNED"
+sum(is.na(v$V15))
+
+v$V16<-NULL
+
+v$V17[is.na(v$V17)]<-round((mean(v$V17, na.rm = TRUE)))
+
+v$V25[is.na(v$V25)]<-round((mean(v$V25, na.rm = TRUE)))
+
+str(v)
+
+##Converting features into factor variable 
+
+v$V10<-as.factor(v$V10)
+v$V13<-as.factor(v$V13)
+v$V14<-as.factor(v$V14)
+v$V15<-as.factor(v$V15)
+v$V31<-as.factor(v$V31)
+
+
+library(mltools)
+library(data.table)
+
+v=one_hot(as.data.table(v))
+
+library(caret)
+library(glmnet)
+library(leaps)
+library(e1071)
+
+##Building the Model
+
+logregtvs<-glm(V32~.-V10_TL-V13_MALE-V14_STUDENT-V15_RENT-V22-`V31_TIER 4`-V10_RETOP-V19-`V31_TIER 1`-V12-V14_PENS-`V15_OWENED BY OFFICE`-V17-V13_FEMALE-V14_SAL-V15_OWNED-V7-V6-V5,data = v,family = "binomial")
+
+summary(logregtvs)
+
+##Predictions with the model built
+
+ypredtvs<-predict(logregtvs,newdata = v,type = "response")
+
+p1<-ifelse(ypredtvs>0.5,1,0)
+
+##Confusion Matrix 
+
+table(p1,v$V32)
+
+
+str(v)
+
+v$V32<-as.factor(v$V32)
+
+library(caret)
+
+##With TrainControl Method:
+
+trc1<-trainControl(method = "repeatedcv",number = 15,repeats = 5)
+trc1
+
+mod_fit231<-train(V32~.-V10_TL-V13_MALE-V14_STUDENT-V15_RENT-V22-`V31_TIER 4`-V10_RETOP-V19-`V31_TIER 1`-V12-V14_PENS-`V15_OWENED BY OFFICE`-V17-V13_FEMALE-V14_SAL-V15_OWNED-V7-V6-V5,data = v,method="glm",family="binomial",trControl=trc1)
+
+mod_fit231
+
+p<-predict(mod_fit231,newdata = v)
+
+confusionMatrix(data =p,v$V32 )
+
+##Building the Best Model:
+
+logregtvs<-glm(V32~.-V10_TL-V13_MALE-V14_STUDENT-V15_RENT-V22-`V31_TIER 4`-V10_RETOP-V19-`V31_TIER 1`-V12-V14_PENS-`V15_OWENED BY OFFICE`-V17-V13_FEMALE-V14_SAL-V15_OWNED-V7-V6-V5-V29,data = v,family = "binomial")
+
+summary(logregtvs)
+
+
+ypredtvs<-predict(logregtvs,newdata = v,type = "response")
+
+p1<-ifelse(ypredtvs>0.5,1,0)
+
+table(p1,v$V32)
+
+accuracy<-(116792+27)/(116792+27+2587+122)
+accuracy
+
+
+
