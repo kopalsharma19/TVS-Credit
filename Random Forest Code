@@ -1,0 +1,36 @@
+import sklearn
+import pandas as pd 
+import numpy as np 
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from pandas import DataFrame
+
+df = pd.read_csv('F:/Meethi Folder/COLLEGE/COMPETITIONS/TVS Bits Pilani/Book3.csv')
+
+X = pd.DataFrame(df.iloc[:,:-1])
+Y = pd.DataFrame(df.iloc[:,-1])
+
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.20)
+
+from sklearn.ensemble import RandomForestRegressor
+regressor = RandomForestRegressor(n_estimators = 20, random_state=0)
+from sklearn.preprocessing import OneHotEncoder
+regressor.fit(X_train, Y_train.values.ravel())
+y_pred = regressor.predict(X_test)
+
+from sklearn import metrics
+print('Mean Absolute Error:', metrics.mean_absolute_error(Y_test,y_pred))
+print('Mean Squared Error:', metrics.mean_squared_error(Y_test,y_pred))
+print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(Y_test,y_pred)))
+
+from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestClassifier
+
+rf = RandomForestClassifier(n_estimators = 128)
+rf.fit(X_train, Y_train.values.ravel())
+y_pred_class = rf.predict(X_test)
+print(classification_report(Y_test, y_pred_class))
+
+pscore = metrics.accuracy_score(Y_test, y_pred_class)
+print(pscore)
+
