@@ -1,3 +1,2 @@
 # TVS-Credit
-Analysis for TVS-Credit Loan Dataset
-
+TVS Credit Analytics Case Study
