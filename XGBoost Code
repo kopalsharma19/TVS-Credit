@@ -1,0 +1,24 @@
+import xgboost
+import numpy
+from numpy import loadtxt
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import pandas as pd 
+
+df = pd.read_csv('F:/Meethi Folder/COLLEGE/COMPETITIONS/TVS Bits Pilani/Book3.csv')
+
+X = pd.DataFrame(df.iloc[:,:-1])
+Y = pd.DataFrame(df.iloc[:,-1])
+
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.20)
+
+model = XGBClassifier()
+model.fit(X_train,Y_train)
+print(model)
+
+y_pred = model.predict(X_test)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(Y_test,predictions)
+print("Accuracy:%.2f%%" % (accuracy*100.0))
+
